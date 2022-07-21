@@ -1,0 +1,4 @@
+/venv
+/skrypty testowe
+/__pycache__
+/.idea
