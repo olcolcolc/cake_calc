@@ -171,11 +171,24 @@ cm_label_3.grid(row=7,
                 sticky="w")
 box_outputs = []  # list of outputs related with box price information (needed for "clear_func")
 
-equal = False
+is_filled = False
+
+
+def clear_button_func():
+    output_entries = [price_output_entry, layer_1_entry, layer_2_entry, layer_3_entry]
+    for output in output_entries:
+        output.delete(0, tkinter.END)
+
+    if box_outputs:
+        for box_output in box_outputs:
+            box_output.destroy()
 
 
 def enter_button_func():
-    global equal
+    global is_filled
+    if is_filled:
+        clear_button_func()
+
     your_cake = Cake(int(portion_entry.get()),
                      int(price_entry.get()),
                      box_check.get(),
@@ -219,17 +232,8 @@ def enter_button_func():
             layer_1_entry.insert(0, your_cake.rectangle_calc()[0])
             layer_2_entry.insert(0, your_cake.rectangle_calc()[1])
             layer_3_entry.insert(0, your_cake.rectangle_calc()[2])
-    equal = True
-
-
-def clear_button_func():
-    output_entries = [price_output_entry, layer_1_entry, layer_2_entry, layer_3_entry]
-    for output in output_entries:
-        output.delete(0, tkinter.END)
-
-    if box_outputs:
-        for box_output in box_outputs:
-            box_output.destroy()
+    is_filled = True
+    return is_filled
 
 
 # BUTTON
@@ -239,8 +243,7 @@ clear_button = customtkinter.CTkButton(master=frame_right, width=20, text="Clear
 clear_button.place(x=120, y=340)
 gui.bind('<Return>', lambda event: enter_button_func())  # When you press enter key
 
-if equal:
-    clear_button_func()
+
 
 gui.mainloop()
 # python test.py
