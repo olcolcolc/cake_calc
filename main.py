@@ -169,10 +169,12 @@ cm_label_3.grid(row=7,
                 column=2,
                 padx=5, pady=5,
                 sticky="w")
+
+error_output = ""
+
 box_outputs = []  # list of outputs related with box price information (needed for "clear_func")
 
-is_filled = False
-
+buttons_filled = False
 
 def clear_button_func():
     output_entries = [price_output_entry, layer_1_entry, layer_2_entry, layer_3_entry]
@@ -183,16 +185,37 @@ def clear_button_func():
         for box_output in box_outputs:
             box_output.destroy()
 
+    if error_output:
+        error_output.destroy()
+
 
 def enter_button_func():
-    global is_filled
-    if is_filled:
+    global buttons_filled
+    global error_output
+
+    if buttons_filled:
         clear_button_func()
 
-    your_cake = Cake(int(portion_entry.get()),
-                     int(price_entry.get()),
-                     box_check.get(),
-                     gf_check.get())
+    try:
+        your_cake = Cake(int(portion_entry.get()),
+                         int(price_entry.get()),
+                         box_check.get(),
+                         gf_check.get())
+        assert int(portion_entry.get()) <= 75
+    except ValueError:
+        error_output = customtkinter.CTkLabel(master=frame_right, text_color="brown3", text="Please insert integer")
+        error_output.grid(row=13,
+                        column=0,
+                        pady=5,
+                        sticky="s")
+    except AssertionError:
+        error_output = customtkinter.CTkLabel(master=frame_right, text_color="brown3", text="75 portions is max")
+        error_output.grid(row=13,
+                        column=0,
+                        pady=5,
+                        sticky="s")
+
+
     price_output_entry.insert(0, your_cake.price_calc()[0])
     if your_cake.price_calc()[1] != 0:  # if price includes box
         box_output_label = customtkinter.CTkLabel(master=frame_right, text="Price includes price of box:")
@@ -232,8 +255,8 @@ def enter_button_func():
             layer_1_entry.insert(0, your_cake.rectangle_calc()[0])
             layer_2_entry.insert(0, your_cake.rectangle_calc()[1])
             layer_3_entry.insert(0, your_cake.rectangle_calc()[2])
-    is_filled = True
-    return is_filled
+    buttons_filled = True
+    return buttons_filled
 
 
 # BUTTON
@@ -242,8 +265,6 @@ enter_button = customtkinter.CTkButton(master=frame_left, width=100, text="Enter
 clear_button = customtkinter.CTkButton(master=frame_right, width=20, text="Clear", command=clear_button_func)
 clear_button.place(x=120, y=340)
 gui.bind('<Return>', lambda event: enter_button_func())  # When you press enter key
-
-
 
 gui.mainloop()
 # python test.py
