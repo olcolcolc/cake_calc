@@ -7,6 +7,22 @@ class Cake:
         self.box = box
         self.gf = gf
 
+    SIDE_OF_ONE_SQUARE_PORTION = 5
+
+    @staticmethod
+    def calculate_layer_ratios(portion):           # pl: oblicz podział pola na warstwy
+        layer_ratio = [0, 0, 0]
+        if portion < 31:
+            layer_ratio[0] = 1
+        elif 31 <= portion <= 50:
+            layer_ratio[0] = 0.65
+            layer_ratio[1] = 0.35
+        elif 51 <= portion < 76:
+            layer_ratio[0] = 0.465
+            layer_ratio[1] = 0.32
+            layer_ratio[2] = 0.24
+        return layer_ratio
+
     def price_calc(self):  # Price for the cake
         if self.gf == 1:
             price = self.portion * (self.price_per_person + 2)
@@ -28,78 +44,56 @@ class Cake:
 
         return [price, box_price]
 
-    def calculate_multiplier(self, portion):
-        multiplier = {
-            "layer1": 0,
-            "layer2": 0,
-            "layer3": 0}
-        if portion < 31:
-            multiplier["layer1"] = 1
-        elif 31 <= portion <= 50:
-            multiplier["layer1"] = 0.65
-            multiplier["layer2"] = 0.35
-        elif 51 <= portion < 76:
-            multiplier["layer1"] = 0.465
-            multiplier["layer2"] = 0.32
-            multiplier["layer3"] = 0.24
-        return multiplier
-
     def round_calc(self):  # Round cake size calculator
         ONE_PORTION_FIELD = 22.8
-        multiplier = self.calculate_multiplier(self.portion)
+        layer_ratios = self.calculate_layer_ratios(self.portion)
         round_cake_field = ONE_PORTION_FIELD * self.portion
         pi = round(math.pi, 2)
 
-        d_1 = round(2 * math.sqrt(round_cake_field * multiplier["layer1"] / pi))
-        d_2 = round(2 * math.sqrt(round_cake_field * multiplier["layer2"] / pi))
-        d_3 = round(2 * math.sqrt(round_cake_field * multiplier["layer3"] / pi))
+        def calculate_d(round_cake_field, layer_ratio):
+            return round(2 * math.sqrt(round_cake_field * layer_ratio / pi))
 
-        return [d_1, d_2, d_3]
+        diameters = []
 
-    def one_portion_field(self, side):  # With this function you can set side size of one portion
-        one_portion_field = side ** 2
-        return one_portion_field  # Field size of portion for one person
+        for layer_ratio in layer_ratios:
+            diameters.append(calculate_d(round_cake_field, layer_ratio))
+
+        return diameters
+
+    def calculate_one_portion_field(self, side):  # With this function you can set side size of one portion
+        return side ** 2  # Field size of portion for one person
 
     def square_calc(self):
-        cake_size = Cake.one_portion_field(self, 6) * self.portion
-        multiplier = self.calculate_multiplier(self.portion)
-        cake_side_1 = round(math.sqrt(cake_size * multiplier["layer1"]))
-        cake_side_2 = round(math.sqrt(cake_size * multiplier["layer2"]))
-        cake_side_3 = round(math.sqrt(cake_size * multiplier["layer3"]))
+        cake_size = self.calculate_one_portion_field(self.SIDE_OF_ONE_SQUARE_PORTION) * self.portion
+        layer_ratios = self.calculate_layer_ratios(self.portion)
 
-        return [cake_side_1, cake_side_2, cake_side_3]
+        def calculate_side(cake_size, layer_ratio):
+            return round(math.sqrt(cake_size * layer_ratio))
+
+        square_sides = []
+
+        for layer_ratio in layer_ratios:
+            square_sides.append(calculate_side(cake_size, layer_ratio))
+
+        return square_sides
 
     def rectangle_calc(self):
-        cake_size = Cake.one_portion_field(self, 6) * self.portion
-        multiplier = self.calculate_multiplier(self.portion)
-        cake_side_a_1 = round(math.sqrt((cake_size * multiplier["layer1"]) / 0.7))
-        cake_side_b_1 = round(cake_side_a_1 * 0.7)
-        cake_side_a_2 = round(math.sqrt((cake_size * multiplier["layer2"]) / 0.7))
-        cake_side_b_2 = round(cake_side_a_2 * 0.7)
-        cake_side_a_3 = round(math.sqrt((cake_size * multiplier["layer3"]) / 0.7))
-        cake_side_b_3 = round(cake_side_a_3 * 0.7)
+        cake_size = self.calculate_one_portion_field(self.SIDE_OF_ONE_SQUARE_PORTION) * self.portion
+        layer_ratios = self.calculate_layer_ratios(self.portion)
 
-        # if self.portion <= 25:  # one layer
-        #     cake_side_a_1 = round(math.sqrt(cake_size / 0.7))
-        #     cake_side_b_1 = round(cake_side_a_1 - 0.3 * cake_side_a_1)
-        #
-        # elif 26 <= self.portion <= 45:  # 2 layers
-        #     layer_1 = cake_size * 0.65
-        #     layer_2 = cake_size * 0.35
-        #     cake_side_a_1 = round(math.sqrt(layer_1 / 0.7))
-        #     cake_side_b_1 = round(cake_side_a_1 - 0.3 * cake_side_a_1)
-        #     cake_side_a_2 = round(math.sqrt(layer_2 / 0.7))
-        #     cake_side_b_2 = round(cake_side_a_2 - 0.3 * cake_side_a_2)
-        #
-        # elif 46 <= self.portion <= 75:  # 3 layers
-        #     layer_1 = cake_size * 0.46
-        #     layer_2 = cake_size * 0.32
-        #     layer_3 = cake_size * 0.24
-        #     cake_side_a_1 = round(math.sqrt(layer_1 / 0.7))
-        #     cake_side_b_1 = round(cake_side_a_1 - 0.3 * cake_side_a_1)
-        #     cake_side_a_2 = round(math.sqrt(layer_2 / 0.7))
-        #     cake_side_b_2 = round(cake_side_a_2 - 0.3 * cake_side_a_2)
-        #     cake_side_a_3 = round(math.sqrt(layer_3 / 0.7))
-        #     cake_side_b_3 = round(cake_side_a_3 - 0.3 * cake_side_a_3)
-        return [(cake_side_a_1, "x", cake_side_b_1), (cake_side_a_2, "x", cake_side_b_2),
-                (cake_side_a_3, "x", cake_side_b_3)]
+        def calculate_side_a(cake_size, layer_ratio):
+            return round(math.sqrt((cake_size * layer_ratio) / 0.7))
+
+        def calculate_side_b(cake_side_a_1):
+            return round(cake_side_a_1 * 0.7)
+
+        cake_sides_a = []
+        cake_sides_b = []
+
+        for layer_ratio in layer_ratios:
+            cake_side_a = calculate_side_a(cake_size, layer_ratio)
+            cake_side_b = calculate_side_b(cake_side_a)
+            cake_sides_a.append(cake_side_a)
+            cake_sides_b.append(cake_side_b)
+
+        return cake_sides_a, cake_sides_b

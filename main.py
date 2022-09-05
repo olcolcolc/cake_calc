@@ -176,6 +176,7 @@ box_outputs = []  # list of outputs related with box price information (needed f
 
 buttons_filled = False
 
+
 def clear_button_func():
     output_entries = [price_output_entry, layer_1_entry, layer_2_entry, layer_3_entry]
     for output in output_entries:
@@ -205,18 +206,18 @@ def enter_button_func():
     except ValueError:
         error_output = customtkinter.CTkLabel(master=frame_right, text_color="brown3", text="Please insert integer")
         error_output.grid(row=13,
-                        column=0,
-                        pady=5,
-                        sticky="s")
+                          column=0,
+                          pady=5,
+                          sticky="s")
     except AssertionError:
         error_output = customtkinter.CTkLabel(master=frame_right, text_color="brown3", text="75 portions is max")
         error_output.grid(row=13,
-                        column=0,
-                        pady=5,
-                        sticky="s")
-
+                          column=0,
+                          pady=5,
+                          sticky="s")
 
     price_output_entry.insert(0, your_cake.price_calc()[0])
+
     if your_cake.price_calc()[1] != 0:  # if price includes box
         box_output_label = customtkinter.CTkLabel(master=frame_right, text="Price includes price of box:")
         box_output_label.grid(row=13,
@@ -252,9 +253,10 @@ def enter_button_func():
             layer_2_entry.insert(0, your_cake.square_calc()[1])
             layer_3_entry.insert(0, your_cake.square_calc()[2])
         else:
-            layer_1_entry.insert(0, your_cake.rectangle_calc()[0])
-            layer_2_entry.insert(0, your_cake.rectangle_calc()[1])
-            layer_3_entry.insert(0, your_cake.rectangle_calc()[2])
+            cake_sides_a, cake_sides_b = your_cake.rectangle_calc()
+            layer_1_entry.insert(0, str(cake_sides_a[0]) + " x " + str(cake_sides_b[0]))
+            layer_2_entry.insert(0, str(cake_sides_a[1]) + " x " + str(cake_sides_b[1]))
+            layer_3_entry.insert(0, str(cake_sides_a[2]) + " x " + str(cake_sides_b[2]))
     buttons_filled = True
     return buttons_filled
 
